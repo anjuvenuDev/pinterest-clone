@@ -2,11 +2,23 @@ import { Image, StyleSheet, Pressable } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'expo-router';
 
-export default function Pin(props: any) {
-    const {image, title} = props.pin;
+type PinItem = {
+  id: string;
+  image: string;
+  title: string;
+};
+
+type PinProps = {
+  pin: PinItem;
+};
+
+export default function Pin({ pin }: PinProps) {
+    const { id, image, title } = pin;
 
     const [ratio, setRatio] = useState(1);
+    const router = useRouter();
 
     const onLike = () => {}; 
 
@@ -26,8 +38,12 @@ export default function Pin(props: any) {
       );
     }, [image]);
 
+    const goToPinPage = () => {
+        router.push({ pathname: '/PinScreen', params: { id } });
+    };
+
   return (
-    <View style={styles.pin}>
+    <Pressable onPress={goToPinPage} style={styles.pin}>
       <View>
         <Image
         source={{
@@ -43,7 +59,7 @@ export default function Pin(props: any) {
       
 
       <Text style={styles.title} numberOfLines={2}>{title}</Text>
-    </View>
+    </Pressable>
   );
 }
 

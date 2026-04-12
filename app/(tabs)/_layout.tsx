@@ -48,6 +48,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="PinScreen"
+        options={{
+          title: 'Pin Screen',
+          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="ProfileScreen"
         options={{
           title: 'Profile Screen',
@@ -55,5 +62,6 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+    
   );
 }
