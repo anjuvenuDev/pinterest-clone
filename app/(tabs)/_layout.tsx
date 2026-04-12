@@ -30,35 +30,21 @@ export default function TabLayout() {
         name="HomeScreen"
         options={{
           title: 'Home Screen',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
+          tabBarIcon: ({ color }) => <FontAwesome name="home" size={30} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="PinScreen"
+        name="CreatePinScreen"
         options={{
-          title: 'Pin Screen',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          title: 'Create Pin',
+          tabBarIcon: ({ color }) => <FontAwesome name="plus-circle" size={30} color={color} />,
         }}
       />
       <Tabs.Screen
         name="ProfileScreen"
         options={{
           title: 'Profile Screen',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesome name="user" size={30} color={color} />,
         }}
       />
     </Tabs>
