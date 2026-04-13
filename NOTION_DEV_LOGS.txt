@@ -1,0 +1,163 @@
+Pinterest Clone - Detailed Development Log (Notion-ready)
+
+Project Path
+- /home/anj/Pinterest
+
+Repository
+- Remote: https://github.com/anjuvenuDev/pinterest-clone
+- Branch: main
+
+Summary
+- This project was created from Expo's tabs template (Expo Router) and then customized into a Pinterest-style clone.
+- Confirmed run command used previously: npm start (which runs expo start).
+- Confirmed dependency install and template bootstrap events from npm logs.
+
+------------------------------------------------------------
+1) Method of Creation (Evidence-backed)
+------------------------------------------------------------
+Most likely creation command
+- npx create-expo-app Pinterest --template tabs
+- Equivalent possibility: npm create expo-app Pinterest -- --template tabs
+
+Why this is the most likely method
+- Template artifact exists locally:
+  - /home/anj/.expo/template-cache/expo-template-tabs-54.0.56.tgz
+- npm logs show Expo template package fetched/packed:
+  - /home/anj/.npm/_logs/2026-04-12T05_34_54_900Z-debug-0.log
+    - "verbose title npm pack expo-template-tabs"
+    - "verbose argv \"pack\" \"expo-template-tabs\" \"--dry-run\" \"--json\""
+  - /home/anj/.npm/_logs/2026-04-12T05_35_01_082Z-debug-0.log
+    - "verbose title npm pack expo-template-tabs"
+    - "verbose argv \"pack\" \"expo-template-tabs\" \"--json\""
+- Initial committed file tree exactly matches Expo Router tabs starter structure:
+  - app/(tabs)/_layout.tsx
+  - app/(tabs)/index.tsx
+  - app/(tabs)/two.tsx
+  - app/+html.tsx
+  - app/+not-found.tsx
+  - app/modal.tsx
+  - components/* starter files
+  - assets/fonts/SpaceMono-Regular.ttf
+
+Confidence level
+- High confidence on template = expo-template-tabs.
+- Exact top-level bootstrap command (npx vs npm create) cannot be fully proven from retained logs, but both map to the same creation flow.
+
+------------------------------------------------------------
+2) Detailed Dev + Build Timeline
+------------------------------------------------------------
+All times below come from retained local logs and git commits.
+
+A) Pre-creation CLI attempts (system/global)
+- 2026-04-12 05:29:27Z
+  - Command: npm install --global expo-cli
+  - Source: /home/anj/.npm/_logs/2026-04-12T05_29_27_435Z-debug-0.log
+  - Result: failed (permission/code -13)
+
+- 2026-04-12 05:33:10Z
+  - Command: npm exec -- epo --version
+  - Source: /home/anj/.npm/_logs/2026-04-12T05_33_10_157Z-debug-0.log
+  - Result: failed (could not determine executable to run)
+  - Note: "epo" appears to be a typo for "expo"
+
+B) Template bootstrap and local project generation
+- 2026-04-12 05:34:54Z
+  - Command: npm pack expo-template-tabs --dry-run --json
+  - Source: /home/anj/.npm/_logs/2026-04-12T05_34_54_900Z-debug-0.log
+  - Working dir in log: /home/anj/.expo/template-cache
+
+- 2026-04-12 05:35:01Z
+  - Command: npm pack expo-template-tabs --json
+  - Source: /home/anj/.npm/_logs/2026-04-12T05_35_01_082Z-debug-0.log
+  - Result: template tarball fetched and cached
+
+- 2026-04-12 05:35:02Z
+  - Command: npm install
+  - Source: /home/anj/.npm/_logs/2026-04-12T05_35_02_165Z-debug-0.log
+  - Working dir in log: /home/anj/Pinterest
+  - Meaning: project dependencies installed in the generated app
+
+C) First dev server run (confirmed)
+- 2026-04-12 05:38:08Z
+  - Command: npm start
+  - Source: /home/anj/.npm/_logs/2026-04-12T05_38_08_819Z-debug-0.log
+  - package.json mapping: start -> expo start
+  - Effective Expo command used: expo start
+
+D) Git-coded development milestones
+- 2026-04-12 11:06:37 +0530
+  - Commit: 2623b9e
+  - Message: Created a new Expo app
+  - Scope: initial Expo Router tabs project import
+
+- 2026-04-12 14:00:49 +0530
+  - Commit: 4065715
+  - Message: Pins
+  - Scope: introduced pin data/features baseline
+
+- 2026-04-12 15:18:16 +0530
+  - Commit: dd6ea6e
+  - Message: Home Screen: Masonry Layout
+  - Scope: Pinterest-style home feed layout changes
+
+- 2026-04-12 16:29:21 +0530
+  - Commit: de780ec
+  - Message: Pin Screen
+  - Scope: details screen for selected pin
+
+- 2026-04-12 17:22:15 +0530
+  - Commit: d041153
+  - Message: Profile & insert pin sceen
+  - Scope: profile tab and create-pin screen
+
+------------------------------------------------------------
+3) Command Mapping Used in This Project
+------------------------------------------------------------
+From /home/anj/Pinterest/package.json scripts:
+- npm start   -> expo start
+- npm run android -> expo start --android
+- npm run ios -> expo start --ios
+- npm run web -> expo start --web
+
+Previously confirmed command used by you
+- npm start
+
+Equivalent direct Expo CLI command
+- expo start
+
+------------------------------------------------------------
+4) Environment Snapshot from Logs
+------------------------------------------------------------
+From npm logs during creation/run:
+- Node: v25.8.2
+- npm: 11.12.1
+- OS: Linux 6.19.10-arch1-1
+
+Expo ecosystem versions in project (package.json)
+- expo: ~54.0.33
+- expo-router: ~6.0.23
+- react-native: 0.81.5
+- react: 19.1.0
+
+------------------------------------------------------------
+5) What Is Not Recoverable Exactly
+------------------------------------------------------------
+- Full Metro runtime console output from the original first run is not retained in repository files.
+- The exact literal bootstrap wrapper command (npx create-expo-app vs npm create expo-app) is not directly preserved, but the tabs template workflow is conclusively evidenced.
+
+------------------------------------------------------------
+6) Copy-Paste Snippet for Notion (Short Form)
+------------------------------------------------------------
+Project creation method:
+- Created with Expo Router tabs starter (expo-template-tabs-54.0.56), then customized into a Pinterest clone.
+- Most likely command: npx create-expo-app Pinterest --template tabs (or equivalent npm create expo-app ... -- --template tabs).
+
+Confirmed dev run command:
+- npm start (maps to expo start).
+
+Build/dev timeline:
+- 2026-04-12 05:34:54Z: template dry-run pack
+- 2026-04-12 05:35:01Z: template pack/fetch
+- 2026-04-12 05:35:02Z: npm install in /home/anj/Pinterest
+- 2026-04-12 05:38:08Z: npm start (expo start)
+- 2026-04-12 to 17:22 +0530: feature commits for Pins, Masonry Home, Pin Screen, Profile/Create Pin
