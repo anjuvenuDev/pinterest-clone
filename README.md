@@ -30,7 +30,7 @@ npm install
 ### 2) Run dev server
 
 ```bash
-npm start
+npx expo start
 ```
 
 ### 3) Open target platform
@@ -49,6 +49,7 @@ From `package.json`:
 - `npm run android` -> `expo start --android`
 - `npm run ios` -> `expo start --ios`
 - `npm run web` -> `expo start --web`
+- Direct CLI command: `npx expo start`
 
 ## Development Log
 
