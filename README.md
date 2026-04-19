@@ -55,6 +55,8 @@ EXPO_PUBLIC_DEMO_TOKEN=demo-token
 Notes:
 - Android emulator usually requires `http://10.0.2.2:8000/api`.
 - iOS simulator/web can use `http://127.0.0.1:8000/api`.
+- Physical device should use your laptop LAN IP, e.g. `http://192.168.1.10:8000/api`.
+- If `EXPO_PUBLIC_API_BASE_URL` is omitted, app will try to infer Expo host LAN IP automatically.
 
 ## Run Frontend
 
@@ -72,6 +74,14 @@ source .venv/bin/activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
+
+If port 8000 is occupied, use another port and update frontend env:
+
+```bash
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
+```
+
+Then set `EXPO_PUBLIC_API_BASE_URL=http://<host>:8001/api`.
 
 ## Test Backend
 

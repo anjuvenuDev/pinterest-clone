@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
 import type { CreatorIngestResponse, FeedResponse, PinItem, UserProfile } from '@/types/pin';
 
@@ -8,7 +9,22 @@ const defaultBaseUrl = Platform.select({
   default: 'http://127.0.0.1:8000/api',
 });
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? defaultBaseUrl;
+function normalizeBaseUrl(url: string): string {
+  return url.replace(/\/+$/, '');
+}
+
+function inferExpoHostBaseUrl(): string | null {
+  const hostUri = Constants.expoConfig?.hostUri;
+  if (!hostUri) return null;
+  const host = hostUri.split(':')[0];
+  if (!host || host === 'localhost' || host === '127.0.0.1') return null;
+  return `http://${host}:8000/api`;
+}
+
+const configuredBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL?.trim();
+const API_BASE_URL = normalizeBaseUrl(
+  configuredBaseUrl || inferExpoHostBaseUrl() || defaultBaseUrl || 'http://127.0.0.1:8000/api'
+);
 const DEMO_TOKEN = process.env.EXPO_PUBLIC_DEMO_TOKEN ?? 'demo-token';
 
 type FeedQuery = {
@@ -18,14 +34,25 @@ type FeedQuery = {
 };
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${DEMO_TOKEN}`,
-      ...(init?.headers ?? {}),
-    },
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      ...init,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${DEMO_TOKEN}`,
+        ...(init?.headers ?? {}),
+      },
+      signal: controller.signal,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Network request failed';
+    throw new Error(`API request failed to ${API_BASE_URL}${path}: ${message}`);
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) {
     const body = await response.text();

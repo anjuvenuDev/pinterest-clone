@@ -3,7 +3,7 @@ import { RefreshControl, ScrollView, StyleSheet } from 'react-native';
 
 import { Text, View } from '@/components/Themed';
 import Pin from '@/components/Pin';
-import { fetchFeed } from '@/services/api';
+import { fetchFeed, getBackendBaseUrl } from '@/services/api';
 import type { PinItem } from '@/types/pin';
 import localPins from '@/app/data/pins';
 
@@ -12,6 +12,7 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [usingFallback, setUsingFallback] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const loadFeed = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -21,9 +22,11 @@ export default function HomeScreen() {
       const response = await fetchFeed({ limit: 30 });
       setPins(response.items);
       setUsingFallback(false);
+      setErrorMessage(null);
     } catch {
       setPins(localPins);
       setUsingFallback(true);
+      setErrorMessage(`Could not reach backend at ${getBackendBaseUrl()}`);
     } finally {
       if (isRefresh) setRefreshing(false);
       else setLoading(false);
@@ -43,6 +46,7 @@ export default function HomeScreen() {
     >
       {loading ? <Text style={styles.infoText}>Loading feed...</Text> : null}
       {usingFallback ? <Text style={styles.infoText}>Using local feed fallback</Text> : null}
+      {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
       <View style={styles.container}>
         <View style={styles.column}>
@@ -69,5 +73,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: '#666',
     fontWeight: '600',
+  },
+  errorText: {
+    marginHorizontal: 12,
+    marginTop: 6,
+    color: '#A11A1A',
+    fontWeight: '700',
   },
 });

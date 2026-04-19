@@ -62,3 +62,28 @@ Testing performed
 
 Next
 - Commit and push integrated frontend-backend changes.
+
+Step 4 - Runtime Troubleshooting Fixes ("not working" follow-up)
+- Reproduced runtime checks and confirmed backend API endpoints are healthy.
+- Diagnosed likely frontend connectivity issue paths:
+  - Missing `.env` in app root.
+  - `.env.example` had duplicate `EXPO_PUBLIC_API_BASE_URL` entries.
+  - Hardcoded localhost defaults can fail on Expo Go/physical device.
+- Implemented fixes:
+  - `services/api.ts` now auto-detects Expo host LAN IP via `expo-constants` if env var is missing.
+  - Added API request timeout + clearer network error message with target URL.
+  - `HomeScreen` now surfaces backend URL error text when falling back to local feed.
+  - Fixed `.env.example` to include a single active URL with platform-specific commented options.
+- Verified backend process and port state:
+  - Existing backend was already listening on port 8000.
+
+Testing performed
+- Backend tests:
+  - Command: `source backend/.venv/bin/activate && PYTHONPATH=backend pytest -q backend/tests`
+  - Result: `6 passed`
+- Frontend type-check:
+  - Command: `npx tsc --noEmit`
+  - Result: pass
+- Live API check:
+  - Command: `curl http://127.0.0.1:8000/api/health`
+  - Result: status `ok`
