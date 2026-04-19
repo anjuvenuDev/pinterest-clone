@@ -87,3 +87,21 @@ Testing performed
 - Live API check:
   - Command: `curl http://127.0.0.1:8000/api/health`
   - Result: status `ok`
+
+Step 5 - CORS Preflight Fix for Mobile/Web Clients
+- Root cause identified from backend logs: repeated `OPTIONS ... 405 Method Not Allowed` on API routes.
+- Implemented CORS support in backend gateway:
+  - Added FastAPI `CORSMiddleware` in `backend/app/main.py`.
+  - Added configurable `CORS_ALLOW_ORIGINS` setting in `backend/app/core/config.py` and `backend/.env.example`.
+- Updated docs to clarify mobile device access requirements (`--host 0.0.0.0`, LAN access/firewall).
+
+Testing performed
+- Verified CORS preflight manually against updated backend:
+  - `OPTIONS /api/feed?limit=30` with `Origin` + `Access-Control-Request-*` headers
+  - Result: `HTTP/1.1 200 OK` with `access-control-allow-origin` and allowed methods/headers.
+- Backend tests:
+  - Command: `source backend/.venv/bin/activate && PYTHONPATH=backend pytest -q backend/tests`
+  - Result: `6 passed`
+- Frontend type-check:
+  - Command: `npx tsc --noEmit`
+  - Result: pass
