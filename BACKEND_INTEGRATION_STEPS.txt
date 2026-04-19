@@ -37,3 +37,28 @@ Testing performed
 
 Next
 - Integrate React Native frontend to call backend API endpoints and replace static data flow.
+
+Step 3 - Frontend to Backend Integration
+- Added typed frontend API client:
+  - `services/api.ts` (feed, recipe detail, like, profile, creator ingest, remix)
+  - `types/pin.ts` (shared frontend API contracts)
+- Updated app screens/components to consume backend:
+  - `app/(tabs)/HomeScreen.tsx` now fetches `/api/feed` (refresh + fallback)
+  - `app/PinScreen.tsx` now fetches `/api/feed/{id}` (fallback on error)
+  - `app/(tabs)/CreatePinScreen.tsx` now calls `/api/creator/ingest`
+  - `app/(tabs)/ProfileScreen.tsx` now calls `/api/users/me` and bookmarked feed
+  - `components/Pin.tsx` like button now calls `/api/feed/{id}/like`
+- Added integration docs:
+  - Updated `README.md` for full-stack setup and env variables
+  - Added `.env.example` for Expo API configuration
+
+Testing performed
+- Backend tests:
+  - Command: `source backend/.venv/bin/activate && PYTHONPATH=backend pytest -q backend/tests`
+  - Result: `6 passed in 0.33s`
+- Frontend type-check:
+  - Command: `npx tsc --noEmit`
+  - Result: pass (no TypeScript errors)
+
+Next
+- Commit and push integrated frontend-backend changes.

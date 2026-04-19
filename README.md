@@ -1,66 +1,94 @@
-# Pinterest Clone (Expo + React Native)
+# Pinterest Clone (Expo + React Native + FastAPI)
 
-A Pinterest-style mobile app built with Expo Router, React Native, and TypeScript.
+A Pinterest-style mobile app built with Expo Router, React Native, and TypeScript, now integrated with a FastAPI backend gateway.
 
 ## Tech Stack
 
-- Expo SDK 54
-- Expo Router
-- React Native 0.81
-- React 19
-- TypeScript
+- Frontend: Expo SDK 54, Expo Router, React Native 0.81, React 19, TypeScript
+- Backend: FastAPI, service-layer architecture, async worker queue stubs
+- Data Layer: Supabase-style repository interface (in-memory local mode)
+
+## Architecture (Implemented)
+
+- React Native app -> FastAPI gateway
+- Gateway concerns: auth middleware, rate limiting, routing
+- Domain modules:
+  - Recipe + Feed
+  - User + Auth
+  - Creator Ingestion
+  - Remix Engine
+- Data services:
+  - Supabase/Postgres abstraction
+  - background queues: search indexing, scraper jobs, feed ranking
+  - external adapters: OpenAI/Claude, Supabase Storage, Typesense/Algolia, Expo Push (stubbed)
+
+## Frontend API Integration
+
+The screens now call backend endpoints with graceful fallback to local pins when backend is unreachable:
+
+- `HomeScreen` -> `GET /api/feed`
+- `PinScreen` -> `GET /api/feed/{recipe_id}`
+- `CreatePinScreen` -> `POST /api/creator/ingest`
+- `ProfileScreen` -> `GET /api/users/me` and `GET /api/feed?bookmarked=true`
+- `Pin` component like action -> `POST /api/feed/{recipe_id}/like`
 
 ## Project Structure
 
-- `app/(tabs)/HomeScreen.tsx` - home feed (masonry-style layout)
-- `app/PinScreen.tsx` - pin details view
-- `app/(tabs)/CreatePinScreen.tsx` - create/insert pin flow
-- `app/(tabs)/ProfileScreen.tsx` - profile screen
-- `app/data/pins.ts` and `assets/data/pins.ts` - local seed data
-- `components/Pin.tsx` - reusable pin card component
+- `app/(tabs)/HomeScreen.tsx` - home feed
+- `app/PinScreen.tsx` - pin details
+- `app/(tabs)/CreatePinScreen.tsx` - creator ingestion flow
+- `app/(tabs)/ProfileScreen.tsx` - profile + bookmarks
+- `services/api.ts` - typed frontend backend client
+- `types/pin.ts` - shared frontend data contracts
+- `backend/` - FastAPI backend services
+- `BACKEND_INTEGRATION_STEPS.txt` - step-by-step integration log
 
-## Getting Started
+## Environment Variables
 
-### 1) Install dependencies
+Create `.env` for Expo app:
+
+```bash
+EXPO_PUBLIC_API_BASE_URL=http://127.0.0.1:8000/api
+EXPO_PUBLIC_DEMO_TOKEN=demo-token
+```
+
+Notes:
+- Android emulator usually requires `http://10.0.2.2:8000/api`.
+- iOS simulator/web can use `http://127.0.0.1:8000/api`.
+
+## Run Frontend
 
 ```bash
 npm install
-```
-
-### 2) Run dev server
-
-```bash
 npx expo start
 ```
 
-### 3) Open target platform
+## Run Backend
 
 ```bash
-npm run android
-npm run ios
-npm run web
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-## Scripts
+## Test Backend
 
-From `package.json`:
+```bash
+cd /home/anj/Pinterest
+source backend/.venv/bin/activate
+PYTHONPATH=backend pytest -q backend/tests
+```
 
-- `npm start` -> `expo start`
-- `npm run android` -> `expo start --android`
-- `npm run ios` -> `expo start --ios`
-- `npm run web` -> `expo start --web`
-- Direct CLI command: `npx expo start`
+## Type Check Frontend
+
+```bash
+npx tsc --noEmit
+```
 
 ## Development Log
 
-Detailed creation/build/dev timeline for Notion is available in:
+Detailed integration checkpoints are documented in:
 
-- `NOTION_DEV_LOGS.txt`
-
-## Git Timeline (Current)
-
-- `2623b9e` Created a new Expo app
-- `4065715` Pins
-- `dd6ea6e` Home Screen: Masonry Layout
-- `de780ec` Pin Screen
-- `d041153` Profile & insert pin sceen
+- `BACKEND_INTEGRATION_STEPS.txt`

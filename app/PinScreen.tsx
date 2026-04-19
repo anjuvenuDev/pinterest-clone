@@ -1,20 +1,44 @@
 import { Image, Pressable, StyleSheet } from 'react-native';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text, View } from '@/components/Themed';
-import pins from '@/app/data/pins';
+import { fetchRecipeById } from '@/services/api';
+import type { PinItem } from '@/types/pin';
+import localPins from '@/app/data/pins';
 
 export default function PinScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [ratio, setRatio] = useState(1);
 
-  const pin = useMemo(() => pins.find((item) => item.id === id) ?? pins[0], [id]);
+  const [ratio, setRatio] = useState(1);
+  const [pin, setPin] = useState<PinItem>(localPins[0]);
+  const [usingFallback, setUsingFallback] = useState(false);
+
+  useEffect(() => {
+    const loadPin = async () => {
+      if (!id) {
+        setPin(localPins[0]);
+        return;
+      }
+
+      try {
+        const recipe = await fetchRecipeById(id);
+        setPin(recipe);
+        setUsingFallback(false);
+      } catch {
+        const fallback = localPins.find((item) => item.id === id) ?? localPins[0];
+        setPin(fallback);
+        setUsingFallback(true);
+      }
+    };
+
+    loadPin();
+  }, [id]);
 
   useEffect(() => {
     if (!pin?.image) return;
@@ -35,6 +59,7 @@ export default function PinScreen() {
       <View style={styles.root}>
         <Image source={{ uri: pin.image }} style={[styles.image, { aspectRatio: ratio }]} />
         <Text style={styles.title}>{pin.title}</Text>
+        {usingFallback ? <Text style={styles.meta}>Backend unavailable, showing local pin</Text> : null}
         <Pressable onPress={() => router.back()} style={[styles.backBtn, { top: insets.top + 20 }]}>
           <Ionicons name="chevron-back" size={35} color="white" />
         </Pressable>
@@ -64,6 +89,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     lineHeight: 35,
+  },
+  meta: {
+    textAlign: 'center',
+    color: '#666',
+    fontWeight: '600',
+    marginBottom: 10,
   },
   backBtn: {
     position: 'absolute',

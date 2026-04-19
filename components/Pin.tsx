@@ -1,14 +1,10 @@
-import { Image, StyleSheet, Pressable } from 'react-native';
+import { Alert, Image, Pressable, StyleSheet } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
-
-type PinItem = {
-  id: string;
-  image: string;
-  title: string;
-};
+import { toggleLike } from '@/services/api';
+import type { PinItem } from '@/types/pin';
 
 type PinProps = {
   pin: PinItem;
@@ -20,7 +16,21 @@ export default function Pin({ pin }: PinProps) {
     const [ratio, setRatio] = useState(1);
     const router = useRouter();
 
-    const onLike = () => {}; 
+    const [isLiked, setIsLiked] = useState(false);
+    const [isLiking, setIsLiking] = useState(false);
+
+    const onLike = async () => {
+      if (isLiking) return;
+      setIsLiking(true);
+      try {
+        await toggleLike(id);
+        setIsLiked((current) => !current);
+      } catch {
+        Alert.alert('Unable to like pin right now');
+      } finally {
+        setIsLiking(false);
+      }
+    };
 
     useEffect(() => {
       if (!image) return;
@@ -53,7 +63,7 @@ export default function Pin({ pin }: PinProps) {
       />
     
     <Pressable onPress={onLike} style={styles.heartButton}>
-        <FontAwesome name="heart-o" size={16} color="black" />
+        <FontAwesome name={isLiked ? 'heart' : 'heart-o'} size={16} color={isLiked ? '#D70040' : 'black'} />
     </Pressable>
       </View>
       

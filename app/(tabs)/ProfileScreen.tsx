@@ -1,12 +1,56 @@
-import { Image, ScrollView, StyleSheet } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Image, RefreshControl, ScrollView, StyleSheet } from 'react-native';
 
 import { Text, View } from '@/components/Themed';
 import Pin from '@/components/Pin';
-import pins from '@/app/data/pins';
+import { fetchFeed, fetchMyProfile } from '@/services/api';
+import type { PinItem, UserProfile } from '@/types/pin';
+import localPins from '@/app/data/pins';
+
+const fallbackProfile: UserProfile = {
+  id: 'demo-user',
+  name: 'Anjana',
+  email: 'anjana@example.com',
+  roles: ['home-cook'],
+  onboarding_completed: false,
+  bookmarks: 0,
+  likes: 0,
+};
 
 export default function ProfileScreen() {
+  const [profile, setProfile] = useState<UserProfile>(fallbackProfile);
+  const [bookmarks, setBookmarks] = useState<PinItem[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [usingFallback, setUsingFallback] = useState(false);
+
+  const loadProfile = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const [profileData, bookmarkFeed] = await Promise.all([
+        fetchMyProfile(),
+        fetchFeed({ bookmarked: true, limit: 30 }),
+      ]);
+      setProfile(profileData);
+      setBookmarks(bookmarkFeed.items);
+      setUsingFallback(false);
+    } catch {
+      setProfile(fallbackProfile);
+      setBookmarks(localPins.slice(0, 6));
+      setUsingFallback(true);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
+
+  const leftColumn = useMemo(() => bookmarks.filter((_, index) => index % 2 === 0), [bookmarks]);
+  const rightColumn = useMemo(() => bookmarks.filter((_, index) => index % 2 === 1), [bookmarks]);
+
   return (
-    <ScrollView>
+    <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={loadProfile} />}>
       <View style={styles.root}>
         <Image
           source={{
@@ -14,17 +58,18 @@ export default function ProfileScreen() {
           }}
           style={styles.profileImage}
         />
-        <Text style={styles.name}>Anjana</Text>
-        <Text style={styles.subTitle}>150 followers · 40 following</Text>
-        <Text style={styles.bio}>Building apps with React Native</Text>
+        <Text style={styles.name}>{profile.name}</Text>
+        <Text style={styles.subTitle}>{`${profile.bookmarks} bookmarks · ${profile.likes} likes`}</Text>
+        <Text style={styles.bio}>Roles: {profile.roles.join(', ') || 'home-cook'}</Text>
+        {usingFallback ? <Text style={styles.meta}>Backend unavailable, showing local profile data</Text> : null}
       </View>
 
       <View style={styles.pins}>
         <View style={styles.column}>
-          {pins.filter((_, index) => index % 2 === 0).map((pin) => <Pin pin={pin} key={pin.id} />)}
+          {leftColumn.map((pin) => <Pin pin={pin} key={pin.id} />)}
         </View>
         <View style={styles.column}>
-          {pins.filter((_, index) => index % 2 === 1).map((pin) => <Pin pin={pin} key={pin.id} />)}
+          {rightColumn.map((pin) => <Pin pin={pin} key={pin.id} />)}
         </View>
       </View>
     </ScrollView>
@@ -55,6 +100,11 @@ const styles = StyleSheet.create({
   bio: {
     fontWeight: '600',
     lineHeight: 20,
+  },
+  meta: {
+    color: '#666',
+    fontWeight: '600',
+    marginTop: 6,
   },
   pins: {
     padding: 10,
