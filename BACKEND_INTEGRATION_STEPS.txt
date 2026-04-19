@@ -14,3 +14,26 @@ Testing performed
 
 Next
 - Scaffold FastAPI backend aligned to architecture diagram.
+
+Step 2 - Backend Scaffold (FastAPI Gateway + Domain Modules)
+- Added `backend/` with FastAPI app structure:
+  - Gateway (`app/main.py`) with auth middleware and rate limiting.
+  - Domain routers: `recipe_feed`, `user_auth`, `creator_ingestion`, `remix`, `health`.
+  - Services layer: feed/auth/creator/remix plus worker bus.
+  - Supabase-style repository abstraction with in-memory mode for local development.
+  - External adapters (stubs): LLM, search indexing, storage, push notifications.
+  - Seed data for users and recipes.
+- Added backend docs and env template:
+  - `backend/README.md`
+  - `backend/.env.example`
+- Added backend dependency file `backend/requirements.txt`.
+
+Testing performed
+- Created local venv: `python3 -m venv backend/.venv`
+- Installed dependencies: `pip install -r backend/requirements.txt`
+- Executed backend unit/service tests (socket-free due sandbox constraints):
+  - Command: `source backend/.venv/bin/activate && PYTHONPATH=backend pytest -q backend/tests`
+  - Result: `6 passed in 0.32s`
+
+Next
+- Integrate React Native frontend to call backend API endpoints and replace static data flow.
